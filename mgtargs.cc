@@ -36,7 +36,7 @@ static struct option long_options[] =
     {"txusrrst",            optional_argument, NULL, 0},
     {"rxusrrst",            optional_argument, NULL, 0},
     {"reset_crc_counters",  optional_argument, NULL, 0},
-    {"play",                required_argument, NULL, 'p'},
+    {"play",                optional_argument, NULL, 'p'},
     {"capture",             no_argument,       NULL, 0},
     {"help",                no_argument,       NULL, 'h'},
     {"device",              required_argument, NULL, 'd'},
@@ -51,7 +51,7 @@ static struct option long_options[] =
 
   while(1)
     {  
-      opt = getopt_long(argc, argv, ":d::q::c::l::r::vh0::",long_options, &option_index);
+      opt = getopt_long(argc, argv, ":d::q::c::l::r::p::vh0::",long_options, &option_index);
 
       if (opt == -1) 
 	break; 
