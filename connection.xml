@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<connections>
+
+	<connection id="apollo.c2c.ku15p"        uri="ipbusmmap-2.0:///dev/mem?offset=0x7aa00000" address_table="file://top_emp_slim.xml" />
+	<connection id="apollo.c2c.vu7p"        uri="ipbusmmap-2.0:///dev/mem?offset=0x7aa10000" address_table="file://top_emp_slim.xml" />
+
+<!--	<connection id="yuge.c2c.0"        uri="ipbusmmap-2.0:///dev/mem?offset=0x7aa00000" address_table="file://top_emp_slim.xml" /> -->
+
+</connections>

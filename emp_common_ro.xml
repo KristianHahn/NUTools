@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="LATIN1"?>
+
+<node>
+  <node id="status">	
+    <node id="qplllock" mask="0x1" />
+    <node id="kind" mask="0x1E"  /> 
+    <node id="quad_link_status" mask="0x20" /> 
+    <node id="init_done" mask="0x40" />
+    <node id="quad_link_down_latched" mask="0x80" />
+    <node id="reset_tx_done" mask="0x100" />
+    <node id="reset_rx_done" mask="0x200" />
+    <node id="buffbypass_tx_done" mask="0x400" />
+    <node id="buffbypass_rx_done" mask="0x800" />
+    <node id="not_in_use" mask="0xFFFFF000" />
+  </node>
+</node>
+
+
+
