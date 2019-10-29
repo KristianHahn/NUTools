@@ -14,8 +14,8 @@ all : mgt reg payload
 mgt : mgttool.exe
 mgttool.exe : mgtargs.o mgtroutines.o
 
-payload : payload.exe
-payload.exe : mgtargs.o mgtroutines.o
+payload : payloadtool.exe
+payloadtool.exe : mgtargs.o mgtroutines.o
 
 reg : regtool.exe
 regtool.exe : regargs.o
