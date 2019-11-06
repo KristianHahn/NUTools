@@ -18,6 +18,9 @@ void mgt_arg_help() {
   printf("\t--rxusrrst(=)<0,1,empty>. Empty argument toggles : Defaults to all channels\n"); 
   printf("\t--reset_crc_counters(=)<0,1,empty> : Empty argument toggles. Defaults to all channels\n"); 
   printf("\t--loopback(=)<mode> or -l<mode> :  Defaults to all channels\n"); 
+  printf("\t--txpolarity(=)<mode> :  Defaults to all channels\n"); 
+  printf("\t--rxpolarity(=)<mode> :  Defaults to all channels\n"); 
+  printf("\t--rxlpm(=)<mode> :  Defaults to all channels\n"); 
   printf("\t--channel(=)<value> or -c<value> : A channel ID (0-3) for play/capture, a bitmask (0x1-0xf) otherwise \n"); 
   printf("\t--play(=)<prefix> or -p<prefix>: Requires channel spec.  Prefix added to MS nibble of each 16b word \n"); 
   printf("\t--capture : Requires channel specification\n"); 
@@ -43,6 +46,10 @@ static struct option long_options[] =
     {"quad",                required_argument, NULL, 'q'},
     {"channel" ,            required_argument, NULL, 'c'},
     {"loopback",            required_argument, NULL, 'l'},
+    {"ttcext",              optional_argument, NULL, 'x'},
+    {"txpolarity",          required_argument, NULL, 0},
+    {"rxpolarity",          required_argument, NULL, 0},
+    {"rxlpm",               required_argument, NULL, 0},
     {"reset",               optional_argument, NULL, 'r'},
     {"dump",                no_argument,       NULL, 'v'},
     {NULL, 0, NULL, 0}
@@ -51,7 +58,7 @@ static struct option long_options[] =
 
   while(1)
     {  
-      opt = getopt_long(argc, argv, ":d::q::c::l::r::p::vh0::",long_options, &option_index);
+      opt = getopt_long(argc, argv, ":d::q::c::l::r::p::x::vh0::",long_options, &option_index);
 
       if (opt == -1) 
 	break; 
@@ -86,6 +93,26 @@ static struct option long_options[] =
 	    if(optarg) dev.reset_crc_counters = strtoul(optarg,NULL,10);
 	    else       dev.reset_crc_counters = MGT_RESET_TOGGLE;
 	  }
+	  if(!strcmp(long_options[option_index].name,"txpolarity") ) {
+	    if(optarg==NULL) {
+	      fprintf(stderr,"Error: txpolarity mode must be specified with  --txpolarity(=)<mode>\n");
+	      return 1;
+	    }
+	    printf("txpolarity: %s\n", optarg);  
+	    if(optarg) dev.tx_polarity = strtoul(optarg,NULL,10);
+	  }
+	  if(!strcmp(long_options[option_index].name,"rxpolarity") ) {
+	    if(optarg==NULL) {
+	      fprintf(stderr,"Error: txpolarity mode must be specified with  --txpolarity(=)<mode>\n");
+	      return 1;
+	    }
+	    printf("rxpolarity: %s\n", optarg);  
+	    if(optarg) dev.rx_polarity = strtoul(optarg,NULL,10);
+	  }
+	  if(!strcmp(long_options[option_index].name,"rxlpm") ) {
+	    printf("rxlpm: %s\n", optarg);  
+	    if(optarg) dev.rx_lpm = strtoul(optarg,NULL,10);
+	  }
 	  break; 
 	case 'd':  
 	  printf("device: %s\n", optarg);  
@@ -119,6 +146,18 @@ static struct option long_options[] =
 	  }
 	  dev.loopback = strtoul(optarg,NULL,10);
 	  break;  
+	case 'x':  
+	  printf("ttcext: %s\n", optarg);  
+	  if(optarg==NULL) {
+	    dev.ttcext = 1;
+	  } else {
+	    dev.ttcext = strtoul(optarg,NULL,10);
+	    if( dev.ttcext != 0 && dev.ttcext != 1 ) { 
+	      fprintf(stderr,"Error: valid values for ttcext are 0 (local) or 1 (external)\n");
+	      return 1;
+	    }
+	  }
+	  break;  
 	case 'r':  
 	  printf("reset: %s\n", optarg);  
 	  if( optarg )
@@ -140,9 +179,6 @@ static struct option long_options[] =
 	  mgt_arg_help();
 	  dev.mode = MGT_MODE_HELP;
 	  return 1;  
-	case 'x':  
-	  printf("test %s\n",optarg);  
-	  break;  
 	case ':':  
 	  printf("option needs a value, optarg is %s\n",optarg);  
 	  break;  

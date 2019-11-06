@@ -44,6 +44,9 @@ int main(int argc, char ** argv) {
   if( dev.mode == MGT_MODE_SET ) { 
     //
     if( dev.loopback >= 0 )               mgt_set_loopback(hw,dev);
+    if( dev.tx_polarity >= 0 )            mgt_tx_polarity(hw,dev);
+    if( dev.rx_polarity >= 0 )            mgt_rx_polarity(hw,dev);
+    if( dev.rx_lpm >= 0 )                 mgt_rx_lpm(hw,dev);
     //
     if( dev.reset >= 0)                   mgt_global_reset(hw,dev);
     if( dev.tx_usrrst >= 0)               mgt_tx_usr_reset(hw,dev); 

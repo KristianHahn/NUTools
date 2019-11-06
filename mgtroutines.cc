@@ -90,6 +90,8 @@ void mgt_rx_usr_reset(HwInterface & hw,DevStruct dev) {
 }
 
 
+
+
 //
 // per-channel crc error reset
 //
@@ -134,6 +136,56 @@ void mgt_set_loopback(HwInterface & hw,DevStruct dev) {
   }
   hw.dispatch();
 }
+
+
+
+//
+// per-channel tx polarity
+//
+void mgt_tx_polarity(HwInterface & hw,DevStruct dev) { 
+  char str[256];
+  for( int i=0; i<4; i++ ) { 
+    if( (dev.channel>>i)&1UL ) { 
+      printf("datapath.region.mgt.rw_regs.ch%d.control.tx_polarity\n", i);
+      sprintf(str,"datapath.region.mgt.rw_regs.ch%d.control.tx_polarity", i);
+      hw.getNode(str).write(dev.tx_polarity);
+    }
+  }
+  hw.dispatch();
+}
+
+
+//
+// per-channel rx polarity
+//
+void mgt_rx_polarity(HwInterface & hw,DevStruct dev) { 
+  char str[256];
+  for( int i=0; i<4; i++ ) { 
+    if( (dev.channel>>i)&1UL ) { 
+      printf("datapath.region.mgt.rw_regs.ch%d.control.rx_polarity\n", i);
+      sprintf(str,"datapath.region.mgt.rw_regs.ch%d.control.rx_polarity", i);
+      hw.getNode(str).write(dev.rx_polarity);
+    }
+  }
+  hw.dispatch();
+}
+
+
+//
+// per-channel rx lpm
+//
+void mgt_rx_lpm(HwInterface & hw,DevStruct dev) { 
+  char str[256];
+  for( int i=0; i<4; i++ ) { 
+    if( (dev.channel>>i)&1UL ) { 
+      printf("datapath.region.mgt.rw_regs.ch%d.control.rxplm_en\n", i);
+      sprintf(str,"datapath.region.mgt.rw_regs.ch%d.control.rxplm_en", i);
+      hw.getNode(str).write(dev.rx_lpm);
+    }
+  }
+  hw.dispatch();
+}
+
 
 //
 // dump mgt status
@@ -290,18 +342,70 @@ void mgt_play(HwInterface & hw,DevStruct dev) {
     usleep(1000);
   }
 
+  if( dev.reset > 0) { 
+    std::cout << "resetting the TTC block ... " << std::endl;
+    if( dev.ttcext ) { 
+      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(1);
+      hw.dispatch();
+      usleep(1000);
+      
+      hw.getNode( "ctrl.csr.ctrl.clk40_sel" ).write(1);
+      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(0);
+      hw.dispatch();
+      
+      hw.getNode( "ttc.csr.ctrl.rst" ).write(1);
+      hw.dispatch();
+      usleep(1000);
+      hw.getNode( "ttc.csr.ctrl.rst" ).write(0);
+      hw.dispatch();
+      
+      hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(1); 
+      hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).write(0); 
+      hw.dispatch();
+      
+    } else { 
+      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(1);
+      hw.dispatch();
+      usleep(1000);
+      
+      hw.getNode( "ctrl.csr.ctrl.clk40_sel" ).write(0);
+      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(0);
+      hw.dispatch();
+      
+      hw.getNode( "ttc.csr.ctrl.rst" ).write(1);
+      hw.dispatch();
+      usleep(1000);
+      hw.getNode( "ttc.csr.ctrl.rst" ).write(0);
+      hw.dispatch();
+      
+      hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(0); 
+      hw.dispatch();
+      hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(1); 
+      hw.dispatch();
+      hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).write(1); 
+      hw.dispatch();
+      //ValWord< uint32_t > bc0_en = hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).read(); 
+      //hw.dispatch();
+    }
+  }
 
-  hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(0); 
-  hw.dispatch();
-  hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(1); 
-  hw.dispatch();
-  hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).write(0); 
-  hw.dispatch();
-  hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).write(1); 
-  hw.dispatch();
-  
-  ValWord< uint32_t > bc0_en = hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).read(); 
-  hw.dispatch();
+  if(dev.dump) { 
+    ValWord< uint32_t > clk40_lock   = hw.getNode ( "ctrl.csr.stat.clk40_lock" ).read();    
+    ValWord< uint32_t > bc0_lock     = hw.getNode ( "ttc.csr.stat0.bc0_lock" ).read();    
+    ValWord< uint32_t > dist_lock    = hw.getNode ( "ttc.csr.stat0.dist_lock" ).read();    
+    ValWord< uint32_t > ttc_phase_ok = hw.getNode ( "ttc.csr.stat0.ttc_phase_ok" ).read();    
+    hw.dispatch();
+    
+    std::cout << std::endl;
+    std::cout << "----------------------" << std::endl;
+    std::cout << "clk40_lock   : " << clk40_lock << std::endl;
+    std::cout << "bc0_lock     : " << bc0_lock << std::endl;
+    std::cout << "dist_lock    : " << dist_lock << std::endl;
+    std::cout << "ttc_phase_ok : " << ttc_phase_ok << std::endl;
+    std::cout << "----------------------" << std::endl;
+    std::cout << std::endl;
+  }
+
 
 
   clearBuffer(hw,dev.quad_id,dev.channel,kTX); 	// switches to tx
@@ -342,19 +446,69 @@ void mgt_capture(HwInterface & hw,DevStruct dev) {
     usleep(1000);
   }
 
+  if( dev.reset > 0) { 
+    std::cout << "resetting the TTC block ... " << std::endl;
+    if( dev.ttcext ) { 
+      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(1);
+      hw.dispatch();
+      usleep(1000);
 
-  hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(0); 
-  hw.dispatch();
-  hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(1); 
-  hw.dispatch();
-  hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).write(0); 
-  hw.dispatch();
-  hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).write(1); 
-  hw.dispatch();
-  
-  ValWord< uint32_t > bc0_en = hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).read(); 
-  hw.dispatch();
+      hw.getNode( "ctrl.csr.ctrl.clk40_sel" ).write(1);
+      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(0);
+      hw.dispatch();
 
+      hw.getNode( "ttc.csr.ctrl.rst" ).write(1);
+      hw.dispatch();
+      usleep(1000);
+      hw.getNode( "ttc.csr.ctrl.rst" ).write(0);
+      hw.dispatch();
+
+      hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(1); 
+      hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).write(0); 
+      hw.dispatch();
+
+    } else { 
+      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(1);
+      hw.dispatch();
+      usleep(1000);
+
+      hw.getNode( "ctrl.csr.ctrl.clk40_sel" ).write(0);
+      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(0);
+      hw.dispatch();
+
+      hw.getNode( "ttc.csr.ctrl.rst" ).write(1);
+      hw.dispatch();
+      usleep(1000);
+      hw.getNode( "ttc.csr.ctrl.rst" ).write(0);
+      hw.dispatch();
+
+      hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(0); 
+      hw.dispatch();
+      hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(1); 
+      hw.dispatch();
+      hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).write(1); 
+      hw.dispatch();
+    //ValWord< uint32_t > bc0_en = hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).read(); 
+    //hw.dispatch();
+    }
+  }
+
+  if(dev.dump) { 
+    ValWord< uint32_t > clk40_lock   = hw.getNode ( "ctrl.csr.stat.clk40_lock" ).read();    
+    ValWord< uint32_t > bc0_lock     = hw.getNode ( "ttc.csr.stat0.bc0_lock" ).read();    
+    ValWord< uint32_t > dist_lock    = hw.getNode ( "ttc.csr.stat0.dist_lock" ).read();    
+    ValWord< uint32_t > ttc_phase_ok = hw.getNode ( "ttc.csr.stat0.ttc_phase_ok" ).read();    
+    hw.dispatch();
+    
+    std::cout << std::endl;
+    std::cout << "----------------------" << std::endl;
+    std::cout << "clk40_lock   : " << clk40_lock << std::endl;
+    std::cout << "bc0_lock     : " << bc0_lock << std::endl;
+    std::cout << "dist_lock    : " << dist_lock << std::endl;
+    std::cout << "ttc_phase_ok : " << ttc_phase_ok << std::endl;
+    std::cout << "----------------------" << std::endl;
+    std::cout << std::endl;
+  }
 
   clearBuffer(hw,dev.quad_id,dev.channel,kRX); /// switches to rx  
   hw.getNode ( "datapath.region.buffer.csr.mode.mode" ).write(MODE_CAPTURE); 
@@ -366,9 +520,9 @@ void mgt_capture(HwInterface & hw,DevStruct dev) {
 
 
   // Capture the buffers
-  hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
-  hw.dispatch();
-  usleep(10000); // <- this sleep is important !!!!
+  //hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
+  //hw.dispatch();
+  //usleep(10000); // <- this sleep is important !!!!
 
   hw.getNode ( "ttc.csr.ctrl.b_cmd" ).write(0xc); 
   hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(1); 
