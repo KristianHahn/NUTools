@@ -41,4 +41,4 @@ void writeBuffer(HwInterface & hw, int quad, int chan, int bufftype, std::vector
 void readBuffer(HwInterface & hw, int quad, int chan, int bufftype, std::vector<uint32_t> & data, int len);
 void mgt_play(HwInterface & hw,DevStruct dev);
 void mgt_capture(HwInterface & hw,DevStruct dev);
-
+void mgt_align(HwInterface & hw,DevStruct dev );

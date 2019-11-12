@@ -10,6 +10,7 @@
 #define MGT_MODE_PLAY    1
 #define MGT_MODE_CAPTURE 2
 #define MGT_MODE_HELP    3
+#define MGT_MODE_ALIGN   4
 #define MGT_RESET_TOGGLE 999
 
 
@@ -28,6 +29,7 @@ typedef struct {
   int  reset_crc_counters=-1;
   int  mode=0;
   int  ttcext=0;
+  int  total_delta=0;
   unsigned prefix=0x0;
 } DevStruct;
 

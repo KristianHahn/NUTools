@@ -56,6 +56,7 @@ int main(int argc, char ** argv) {
   } 
   else if(dev.mode == MGT_MODE_PLAY)      mgt_play(hw,dev);
   else if(dev.mode == MGT_MODE_CAPTURE)   mgt_capture(hw,dev); 
+  else if(dev.mode == MGT_MODE_ALIGN)     mgt_align(hw,dev); 
   else ;
 
 }

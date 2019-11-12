@@ -3,27 +3,72 @@
 #include "mgtroutines.h"
 
 void mgt_global_reset(HwInterface & hw, DevStruct dev) {
+
+  char str[256];
+
+  for( int i=0; i<4; i++ ) { 
+    if( (dev.channel>>i)&1UL ) { 
+      printf("datapath.region.mgt.rw_regs.ch%d.control.rxplm_en\n", i);
+      sprintf(str,"datapath.region.mgt.rw_regs.ch%d.control.rxplm_en", i);
+      hw.getNode(str).write(1);
+      hw.dispatch();
+    }
+  }
+
   if( dev.reset == MGT_RESET_TOGGLE ) { 
     printf("reset toggling ...\n");
-    hw.getNode ( "datapath.region.mgt.rw_regs.common.control.soft_reset" ).write(1);
-    hw.getNode ( "datapath.region.mgt.rw_regs.common.control.reset_error_counter" ).write(1);
     hw.getNode ( "datapath.region.mgt.rw_regs.common.control.reset_tx_datapath" ).write(1);
     hw.getNode ( "datapath.region.mgt.rw_regs.common.control.reset_rx_datapath" ).write(1);
+    hw.getNode ( "datapath.region.mgt.rw_regs.common.control.soft_reset" ).write(1);
+    hw.getNode ( "datapath.region.mgt.rw_regs.common.control.reset_error_counter" ).write(1);
     hw.dispatch();
-    usleep(1000);
-    hw.getNode ( "datapath.region.mgt.rw_regs.common.control.soft_reset" ).write(0);
-    hw.getNode ( "datapath.region.mgt.rw_regs.common.control.reset_error_counter" ).write(0);
+
     hw.getNode ( "datapath.region.mgt.rw_regs.common.control.reset_tx_datapath" ).write(0);
+    hw.dispatch();
+    usleep(100000);
     hw.getNode ( "datapath.region.mgt.rw_regs.common.control.reset_rx_datapath" ).write(0);
+    hw.dispatch();
+    usleep(100000);
+    hw.getNode ( "datapath.region.mgt.rw_regs.common.control.soft_reset" ).write(0);
+    hw.dispatch();
+    usleep(100000);
+    hw.getNode ( "datapath.region.mgt.rw_regs.common.control.reset_error_counter" ).write(0);
     hw.dispatch();
   } else {
     printf("reset not toggling ...\n");
-    hw.getNode ( "datapath.region.mgt.rw_regs.common.control.soft_reset" ).write(dev.reset);
-    hw.getNode ( "datapath.region.mgt.rw_regs.common.control.reset_error_counter" ).write(dev.reset);
     hw.getNode ( "datapath.region.mgt.rw_regs.common.control.reset_tx_datapath" ).write(dev.reset);
     hw.getNode ( "datapath.region.mgt.rw_regs.common.control.reset_rx_datapath" ).write(dev.reset);
+    hw.getNode ( "datapath.region.mgt.rw_regs.common.control.soft_reset" ).write(dev.reset);
+    hw.getNode ( "datapath.region.mgt.rw_regs.common.control.reset_error_counter" ).write(dev.reset);
     hw.dispatch();
   }
+
+  usleep(100000);
+
+  for( int i=0; i<4; i++ ) { 
+    for( int txrx=0; txrx<2; txrx++ ) { 
+      
+      hw.getNode ( "datapath.ctrl.chan_sel" ).write(i);
+      hw.getNode ( "datapath.ctrl.txrx_sel" ).write(txrx);
+      
+      hw.getNode("datapath.region.align.ctrl.del_inc").write(0x0);
+      hw.getNode("datapath.region.align.ctrl.del_dec").write(0x0);
+      hw.getNode("datapath.region.align.ctrl.freeze").write(0x0);
+
+      hw.getNode("datapath.region.align.ctrl.del_rst").write(0x1);
+      hw.getNode("datapath.region.align.ctrl.del_rst").write(0x0);
+      hw.dispatch();
+      
+      sprintf(str,"datapath.region.mgt.rw_regs.ch%d.control.reset_crc_counters", i);
+      hw.getNode(str).write(1);
+      sprintf(str,"datapath.region.mgt.rw_regs.ch%d.control.reset_crc_counters", i);
+      hw.getNode(str).write(0);
+      hw.dispatch();
+    }
+  }
+
+
+
 }
 
 
@@ -315,7 +360,11 @@ void readBuffer(HwInterface & hw, int quad, int chan, int bufftype, std::vector<
 
 void mgt_play(HwInterface & hw,DevStruct dev) {
   vector<unsigned> txdata;
-  for( int i=0; i<BUFFER_LEN/16; i++ ) { 
+  txdata.push_back(0xdead);
+  txdata.push_back(0xbeef);
+  txdata.push_back(0xfeed);
+  txdata.push_back(0x3face);
+  for( int i=0; i<BUFFER_LEN/20; i++ ) { 
     txdata.push_back(0x00000000|dev.prefix);
     txdata.push_back(0x00000111|dev.prefix);
     txdata.push_back(0x00000222|dev.prefix);
@@ -332,15 +381,29 @@ void mgt_play(HwInterface & hw,DevStruct dev) {
     txdata.push_back(0x00000ddd|dev.prefix);
     txdata.push_back(0x00000eee|dev.prefix);
     txdata.push_back(0x00010fff|dev.prefix);
+    txdata.push_back(i);
+    txdata.push_back(i);
+    txdata.push_back(i);
+    txdata.push_back(0x00010000);
   }
 
-  ValWord< uint32_t > linkup = hw.getNode ( "datapath.region.mgt.ro_regs.common.status.quad_link_status" ).read();
-  hw.dispatch();
-  while( !linkup ) {
-    linkup = hw.getNode ( "datapath.region.mgt.ro_regs.common.status.quad_link_status" ).read();
-    hw.dispatch();
-    usleep(1000);
+  if( dev.dump ) {
+    std::cout << "\t\t buffer" << std::endl;
+    for( int i=0; i<txdata.size(); i++ ) {     
+      std::cout << "i: " << std::dec << i << "\t"
+		<< "data: " << std::hex << txdata[i]
+		<< std::endl;
+    }
   }
+
+
+  // ValWord< uint32_t > linkup = hw.getNode ( "datapath.region.mgt.ro_regs.common.status.quad_link_status" ).read();
+  // hw.dispatch();
+  // while( !linkup ) {
+  //   linkup = hw.getNode ( "datapath.region.mgt.ro_regs.common.status.quad_link_status" ).read();
+  //   hw.dispatch();
+  //   usleep(1000);
+  // }
 
   if( dev.reset > 0) { 
     std::cout << "resetting the TTC block ... " << std::endl;
@@ -427,6 +490,7 @@ void mgt_play(HwInterface & hw,DevStruct dev) {
   hw.dispatch();
   usleep(10000); // <- this sleep is important !!!!
 
+  //hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
   hw.getNode ( "ttc.csr.ctrl.b_cmd" ).write(0xc); 
   hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(1); 
   hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(0); 
@@ -434,7 +498,7 @@ void mgt_play(HwInterface & hw,DevStruct dev) {
 }
 
 
-void mgt_capture(HwInterface & hw,DevStruct dev) {
+void mgt_capture(HwInterface & hw, DevStruct dev) {
   vector<unsigned> rxdata;
 
 
@@ -446,69 +510,6 @@ void mgt_capture(HwInterface & hw,DevStruct dev) {
     usleep(1000);
   }
 
-  if( dev.reset > 0) { 
-    std::cout << "resetting the TTC block ... " << std::endl;
-    if( dev.ttcext ) { 
-      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(1);
-      hw.dispatch();
-      usleep(1000);
-
-      hw.getNode( "ctrl.csr.ctrl.clk40_sel" ).write(1);
-      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(0);
-      hw.dispatch();
-
-      hw.getNode( "ttc.csr.ctrl.rst" ).write(1);
-      hw.dispatch();
-      usleep(1000);
-      hw.getNode( "ttc.csr.ctrl.rst" ).write(0);
-      hw.dispatch();
-
-      hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(1); 
-      hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).write(0); 
-      hw.dispatch();
-
-    } else { 
-      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(1);
-      hw.dispatch();
-      usleep(1000);
-
-      hw.getNode( "ctrl.csr.ctrl.clk40_sel" ).write(0);
-      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(0);
-      hw.dispatch();
-
-      hw.getNode( "ttc.csr.ctrl.rst" ).write(1);
-      hw.dispatch();
-      usleep(1000);
-      hw.getNode( "ttc.csr.ctrl.rst" ).write(0);
-      hw.dispatch();
-
-      hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(0); 
-      hw.dispatch();
-      hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(1); 
-      hw.dispatch();
-      hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).write(1); 
-      hw.dispatch();
-    //ValWord< uint32_t > bc0_en = hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).read(); 
-    //hw.dispatch();
-    }
-  }
-
-  if(dev.dump) { 
-    ValWord< uint32_t > clk40_lock   = hw.getNode ( "ctrl.csr.stat.clk40_lock" ).read();    
-    ValWord< uint32_t > bc0_lock     = hw.getNode ( "ttc.csr.stat0.bc0_lock" ).read();    
-    ValWord< uint32_t > dist_lock    = hw.getNode ( "ttc.csr.stat0.dist_lock" ).read();    
-    ValWord< uint32_t > ttc_phase_ok = hw.getNode ( "ttc.csr.stat0.ttc_phase_ok" ).read();    
-    hw.dispatch();
-    
-    std::cout << std::endl;
-    std::cout << "----------------------" << std::endl;
-    std::cout << "clk40_lock   : " << clk40_lock << std::endl;
-    std::cout << "bc0_lock     : " << bc0_lock << std::endl;
-    std::cout << "dist_lock    : " << dist_lock << std::endl;
-    std::cout << "ttc_phase_ok : " << ttc_phase_ok << std::endl;
-    std::cout << "----------------------" << std::endl;
-    std::cout << std::endl;
-  }
 
   clearBuffer(hw,dev.quad_id,dev.channel,kRX); /// switches to rx  
   hw.getNode ( "datapath.region.buffer.csr.mode.mode" ).write(MODE_CAPTURE); 
@@ -524,6 +525,7 @@ void mgt_capture(HwInterface & hw,DevStruct dev) {
   //hw.dispatch();
   //usleep(10000); // <- this sleep is important !!!!
 
+  hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
   hw.getNode ( "ttc.csr.ctrl.b_cmd" ).write(0xc); 
   hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(1); 
   hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(0); 
@@ -536,6 +538,32 @@ void mgt_capture(HwInterface & hw,DevStruct dev) {
     std::cout  << "i: "  << std::dec << std::setw(4) << i << "\t"
 	       << "rx: " << std::hex << std::setw(5) << rxdata[i] << "\t\t"
 	       << std::endl;
+  }
+
+}
+
+
+void mgt_align(HwInterface & hw, DevStruct dev) { 
+
+  hw.getNode ( "datapath.ctrl.quad_sel" ).write(dev.quad_id);
+  hw.getNode ( "datapath.ctrl.chan_sel" ).write(dev.channel);
+
+  if( dev.total_delta > 0 ) { 
+    for( int i=0; i<dev.total_delta; i++ ) { 
+      hw.getNode ( "datapath.region.align.ctrl.del_dec" ).write(0x1);
+      hw.dispatch();
+    }
+      hw.getNode ( "datapath.region.align.ctrl.del_dec" ).write(0x0);
+      hw.dispatch();
+  } else if ( dev.total_delta < 0 ) { 
+    for( int i=0; i<abs(dev.total_delta); i++ ) { 
+      hw.getNode ( "datapath.region.align.ctrl.del_inc" ).write(0x1);
+      hw.dispatch();
+    }
+      hw.getNode ( "datapath.region.align.ctrl.del_inc" ).write(0x0);
+      hw.dispatch();
+  } else {
+    ;
   }
 
 }

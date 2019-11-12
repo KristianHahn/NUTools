@@ -9,7 +9,7 @@ INCLUDE_FLAGS=$(foreach d, $(INCLUDE_DIRS), -I$d)
 LD_FLAGS=$(foreach d, $(LIB_DIRS), -L$d) $(foreach f, $(LIBS), -l$f)
 
 
-all : mgt reg payload
+all : mgt reg payload ttc
 
 mgt : mgttool.exe
 mgttool.exe : mgtargs.o mgtroutines.o
@@ -20,6 +20,9 @@ payloadtool.exe : mgtargs.o mgtroutines.o
 reg : regtool.exe
 regtool.exe : regargs.o
 
+
+ttc : ttctool.exe
+ttctool.exe : ttcargs.o ttcroutines.o
 
 %.o : %.cc
 	$(CXX) $(CXX_FLAGS) $(INCLUDE_FLAGS) -c $< -o $@

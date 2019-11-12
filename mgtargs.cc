@@ -52,13 +52,14 @@ static struct option long_options[] =
     {"rxlpm",               required_argument, NULL, 0},
     {"reset",               optional_argument, NULL, 'r'},
     {"dump",                no_argument,       NULL, 'v'},
+    {"align",               required_argument, NULL, 'a'},
     {NULL, 0, NULL, 0}
   };
 
 
   while(1)
     {  
-      opt = getopt_long(argc, argv, ":d::q::c::l::r::p::x::vh0::",long_options, &option_index);
+      opt = getopt_long(argc, argv, ":d::q::c::l::r::p::x::a::vh0::",long_options, &option_index);
 
       if (opt == -1) 
 	break; 
@@ -163,6 +164,12 @@ static struct option long_options[] =
 	  if( optarg )
 	    dev.reset = strtoul(optarg,NULL,10);
 	  else dev.reset = MGT_RESET_TOGGLE;
+	  break;  
+	case 'a':  
+	  printf("align: %s\n", optarg);  
+	  if( optarg )
+	    dev.total_delta = strtol(optarg,NULL,10);
+	  dev.mode = MGT_MODE_ALIGN;
 	  break;  
 	case 'p':  
 	  printf("play: %s\n", optarg);  
