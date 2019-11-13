@@ -28,7 +28,7 @@ static struct option long_options[] =
   {
     {"device",              required_argument, NULL, 'd'},
     {"help",                no_argument,       NULL, 'h'},
-    {"reset",               required_argument, NULL, 'r'},
+    {"mode",                required_argument, NULL, 'x'},
     {"dump",                no_argument,       NULL, 'v'},
     {NULL, 0, NULL, 0}
   };
@@ -36,7 +36,7 @@ static struct option long_options[] =
 
   while(1)
     {  
-      opt = getopt_long(argc, argv, ":d::r::vh",long_options, &option_index);
+      opt = getopt_long(argc, argv, ":d::x::vh",long_options, &option_index);
 
       if (opt == -1) 
 	break; 
@@ -51,13 +51,13 @@ static struct option long_options[] =
 	  }
 	  sprintf(dev.device,"%s",optarg); // vu7p or ku15p
 	  break;  
-	case 'r':  
-	  printf("reset: %s\n", optarg);  
+	case 'x':  
+	  printf("mode: %s\n", optarg);  
 	  if( optarg ) { 
 	    dev.mode   = TTC_MODE_RST;
 	    dev.ttcext = strtoul(optarg,NULL,10);
 	  } else { 
-	    std::cerr << "reset needs an argument ..." << std::endl;
+	    std::cerr << "mode needs an argument ..." << std::endl;
 	  }
 	  break;  
 	case 'v':  
