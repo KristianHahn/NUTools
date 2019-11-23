@@ -22,7 +22,9 @@ void mgt_arg_help() {
   printf("\t--rxpolarity(=)<mode> :  Defaults to all channels\n"); 
   printf("\t--rxlpm(=)<mode> :  Defaults to all channels\n"); 
   printf("\t--channel(=)<value> or -c<value> : A channel ID (0-3) for play/capture, a bitmask (0x1-0xf) otherwise \n"); 
+  printf("\t--bufftype(=)<value> or -b<value> : Buffer type for play/capture, "tx" or "rx" \n"); 
   printf("\t--play(=)<prefix> or -p<prefix>: Requires channel spec.  Prefix added to MS nibble of each 16b word \n"); 
+  printf("\t\t--file(=)<filename> or -f<filename>: optional filename for play\n"); 
   printf("\t--capture : Requires channel specification\n"); 
   printf("\t--dump or -v : Dumps the MGT status\n"); 
   printf("\n");
@@ -40,11 +42,13 @@ static struct option long_options[] =
     {"rxusrrst",            optional_argument, NULL, 0},
     {"reset_crc_counters",  optional_argument, NULL, 0},
     {"play",                optional_argument, NULL, 'p'},
+    {"file",                required_argument, NULL, 'f'},
     {"capture",             no_argument,       NULL, 0},
     {"help",                no_argument,       NULL, 'h'},
     {"device",              required_argument, NULL, 'd'},
     {"quad",                required_argument, NULL, 'q'},
     {"channel" ,            required_argument, NULL, 'c'},
+    {"bufftype" ,           required_argument, NULL, 'b'},
     {"loopback",            required_argument, NULL, 'l'},
     {"ttcext",              optional_argument, NULL, 'x'},
     {"txpolarity",          required_argument, NULL, 0},
@@ -59,7 +63,7 @@ static struct option long_options[] =
 
   while(1)
     {  
-      opt = getopt_long(argc, argv, ":d::q::c::l::r::p::x::a::vh0::",long_options, &option_index);
+      opt = getopt_long(argc, argv, ":d::q::c::f::b::l::r::p::x::a::vh0::",long_options, &option_index);
 
       if (opt == -1) 
 	break; 
@@ -139,6 +143,22 @@ static struct option long_options[] =
 	  }
 	  dev.channel = strtoul(optarg,NULL,16);
 	  break;  
+	case 'f':  
+	  printf("file: %s\n", optarg);  
+	  if(optarg==NULL) {
+	    fprintf(stderr,"Error: filename must be specified with -f<filename> or --file(=)<filename>\n");
+	    return 1;
+	  }
+	  dev.filename = string(optarg);
+	  break;  
+	case 'b':  
+	  printf("bufftype: %s\n", optarg);  
+	  if(optarg==NULL || (strcmp(optarg,"tx",NULL) && strcmp(optarg,"rx",NULL) ) ) {
+	    fprintf(stderr,"Error: bufftype mask must be specified with -b<'tx'|'rx'> or --bufftype(=)<'tx'|'rx'>\n");
+	    return 1;
+	  }
+          if( !strcmp(optarg,"tx",NULL) ) dev.bufftype=1;
+	  break;  
 	case 'l':  
 	  printf("loopback: %s\n", optarg);  
 	  if(optarg==NULL) {
@@ -147,18 +167,18 @@ static struct option long_options[] =
 	  }
 	  dev.loopback = strtoul(optarg,NULL,10);
 	  break;  
-	case 'x':  
-	  printf("ttcext: %s\n", optarg);  
-	  if(optarg==NULL) {
-	    dev.ttcext = 1;
-	  } else {
-	    dev.ttcext = strtoul(optarg,NULL,10);
-	    if( dev.ttcext != 0 && dev.ttcext != 1 ) { 
-	      fprintf(stderr,"Error: valid values for ttcext are 0 (local) or 1 (external)\n");
-	      return 1;
-	    }
-	  }
-	  break;  
+// 	case 'x':  
+// 	  printf("ttcext: %s\n", optarg);  
+// 	  if(optarg==NULL) {
+// 	    dev.ttcext = 1;
+// 	  } else {
+// 	    dev.ttcext = strtoul(optarg,NULL,10);
+// 	    if( dev.ttcext != 0 && dev.ttcext != 1 ) { 
+// 	      fprintf(stderr,"Error: valid values for ttcext are 0 (local) or 1 (external)\n");
+// 	      return 1;
+// 	    }
+// 	  }
+// 	  break;  
 	case 'r':  
 	  printf("reset: %s\n", optarg);  
 	  if( optarg )

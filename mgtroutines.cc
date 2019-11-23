@@ -358,40 +358,41 @@ void readBuffer(HwInterface & hw, int quad, int chan, int bufftype, std::vector<
 
 
 
-void mgt_play(HwInterface & hw,DevStruct dev) {
-  vector<unsigned> txdata;
-  txdata.push_back(0xdead);
-  txdata.push_back(0xbeef);
-  txdata.push_back(0xfeed);
-  txdata.push_back(0x3face);
+void mgt_play_pattern(HwInterface & hw,DevStruct dev) {
+
+  vector<unsigned> data;
+  data.push_back(0xdead);
+  data.push_back(0xbeef);
+  data.push_back(0xfeed);
+  data.push_back(0x3face);
   for( int i=0; i<BUFFER_LEN/20; i++ ) { 
-    txdata.push_back(0x00000000|dev.prefix);
-    txdata.push_back(0x00000111|dev.prefix);
-    txdata.push_back(0x00000222|dev.prefix);
-    txdata.push_back(0x00010333|dev.prefix);
-    txdata.push_back(0x00000444|dev.prefix);
-    txdata.push_back(0x00000555|dev.prefix);
-    txdata.push_back(0x00000666|dev.prefix);
-    txdata.push_back(0x00010777|dev.prefix);
-    txdata.push_back(0x00000888|dev.prefix);
-    txdata.push_back(0x00000999|dev.prefix);
-    txdata.push_back(0x00000aaa|dev.prefix);
-    txdata.push_back(0x00010bbb|dev.prefix);
-    txdata.push_back(0x00000ccc|dev.prefix);
-    txdata.push_back(0x00000ddd|dev.prefix);
-    txdata.push_back(0x00000eee|dev.prefix);
-    txdata.push_back(0x00010fff|dev.prefix);
-    txdata.push_back(i);
-    txdata.push_back(i);
-    txdata.push_back(i);
-    txdata.push_back(0x00010000);
+    data.push_back(0x00000000|dev.prefix);
+    data.push_back(0x00000111|dev.prefix);
+    data.push_back(0x00000222|dev.prefix);
+    data.push_back(0x00010333|dev.prefix);
+    data.push_back(0x00000444|dev.prefix);
+    data.push_back(0x00000555|dev.prefix);
+    data.push_back(0x00000666|dev.prefix);
+    data.push_back(0x00010777|dev.prefix);
+    data.push_back(0x00000888|dev.prefix);
+    data.push_back(0x00000999|dev.prefix);
+    data.push_back(0x00000aaa|dev.prefix);
+    data.push_back(0x00010bbb|dev.prefix);
+    data.push_back(0x00000ccc|dev.prefix);
+    data.push_back(0x00000ddd|dev.prefix);
+    data.push_back(0x00000eee|dev.prefix);
+    data.push_back(0x00010fff|dev.prefix);
+    data.push_back(i);
+    data.push_back(i);
+    data.push_back(i);
+    data.push_back(0x00010000);
   }
 
   if( dev.dump ) {
     std::cout << "\t\t buffer" << std::endl;
-    for( int i=0; i<txdata.size(); i++ ) {     
+    for( int i=0; i<data.size(); i++ ) {     
       std::cout << "i: " << std::dec << i << "\t"
-		<< "data: " << std::hex << txdata[i]
+		<< "data: " << std::hex << data[i]
 		<< std::endl;
     }
   }
@@ -405,70 +406,62 @@ void mgt_play(HwInterface & hw,DevStruct dev) {
   //   usleep(1000);
   // }
 
-  if( dev.reset > 0) { 
-    std::cout << "resetting the TTC block ... " << std::endl;
-    if( dev.ttcext ) { 
-      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(1);
-      hw.dispatch();
-      usleep(1000);
-      
-      hw.getNode( "ctrl.csr.ctrl.clk40_sel" ).write(1);
-      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(0);
-      hw.dispatch();
-      
-      hw.getNode( "ttc.csr.ctrl.rst" ).write(1);
-      hw.dispatch();
-      usleep(1000);
-      hw.getNode( "ttc.csr.ctrl.rst" ).write(0);
-      hw.dispatch();
-      
-      hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(1); 
-      hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).write(0); 
-      hw.dispatch();
-      
-    } else { 
-      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(1);
-      hw.dispatch();
-      usleep(1000);
-      
-      hw.getNode( "ctrl.csr.ctrl.clk40_sel" ).write(0);
-      hw.getNode( "ctrl.csr.ctrl.clk40_rst" ).write(0);
-      hw.dispatch();
-      
-      hw.getNode( "ttc.csr.ctrl.rst" ).write(1);
-      hw.dispatch();
-      usleep(1000);
-      hw.getNode( "ttc.csr.ctrl.rst" ).write(0);
-      hw.dispatch();
-      
-      hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(0); 
-      hw.dispatch();
-      hw.getNode ( "ttc.csr.ctrl.ttc_enable" ).write(1); 
-      hw.dispatch();
-      hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).write(1); 
-      hw.dispatch();
-      //ValWord< uint32_t > bc0_en = hw.getNode ( "ttc.csr.ctrl.int_bc0_enable" ).read(); 
-      //hw.dispatch();
+
+  clearBuffer(hw,dev.quad_id,dev.channel,dev.bufftype); 	// switches to tx
+  usleep(10000);
+  hw.dispatch();
+  usleep(10000);
+  hw.getNode ( "datapath.region.buffer.csr.mode.mode" ).write(MODE_PLAY); 
+  hw.getNode ( "datapath.region.buffer.csr.mode.datasrc" ).write(SOURCE_BUFFER); 
+  hw.getNode ( "datapath.region.buffer.csr.range.max_word" ).write(BUFFER_LEN);
+  hw.getNode ( "datapath.region.buffer.csr.mode.stbsrc" ).write(STROBE_HIGH); 
+  hw.dispatch();
+  usleep(10000);
+  writeBuffer(hw,dev.quad_id,dev.channel,dev.bufftype,data);
+
+
+
+  // Play the buffers
+  hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
+  hw.dispatch();
+  usleep(10000); // <- this sleep is important !!!!
+
+  //hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
+  hw.getNode ( "ttc.csr.ctrl.b_cmd" ).write(0xc); 
+  hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(1); 
+  hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(0); 
+  hw.dispatch();	
+}
+
+
+
+void mgt_play_file(HwInterface & hw,DevStruct dev) {
+  vector<unsigned> data;
+
+  ifstream mem = ifstream(dev.filename);
+  unsigned val;
+  while( !(mem.eof()) && data.size() < BUFFSIZE )  { 
+    mem >> std::hex >> val;
+    data.push_back(val);
+  }
+
+  if( dev.dump ) {
+    std::cout << "\t\t buffer" << std::endl;
+    for( int i=0; i<data.size(); i++ ) {     
+      std::cout << "i: " << std::dec << i << "\t"
+		<< "data: " << std::hex << data[i]
+		<< std::endl;
     }
   }
 
-  if(dev.dump) { 
-    ValWord< uint32_t > clk40_lock   = hw.getNode ( "ctrl.csr.stat.clk40_lock" ).read();    
-    ValWord< uint32_t > bc0_lock     = hw.getNode ( "ttc.csr.stat0.bc0_lock" ).read();    
-    ValWord< uint32_t > dist_lock    = hw.getNode ( "ttc.csr.stat0.dist_lock" ).read();    
-    ValWord< uint32_t > ttc_phase_ok = hw.getNode ( "ttc.csr.stat0.ttc_phase_ok" ).read();    
-    hw.dispatch();
-    
-    std::cout << std::endl;
-    std::cout << "----------------------" << std::endl;
-    std::cout << "clk40_lock   : " << clk40_lock << std::endl;
-    std::cout << "bc0_lock     : " << bc0_lock << std::endl;
-    std::cout << "dist_lock    : " << dist_lock << std::endl;
-    std::cout << "ttc_phase_ok : " << ttc_phase_ok << std::endl;
-    std::cout << "----------------------" << std::endl;
-    std::cout << std::endl;
-  }
 
+  // ValWord< uint32_t > linkup = hw.getNode ( "datapath.region.mgt.ro_regs.common.status.quad_link_status" ).read();
+  // hw.dispatch();
+  // while( !linkup ) {
+  //   linkup = hw.getNode ( "datapath.region.mgt.ro_regs.common.status.quad_link_status" ).read();
+  //   hw.dispatch();
+  //   usleep(1000);
+  // }
 
 
   clearBuffer(hw,dev.quad_id,dev.channel,kTX); 	// switches to tx
@@ -499,7 +492,7 @@ void mgt_play(HwInterface & hw,DevStruct dev) {
 
 
 void mgt_capture(HwInterface & hw, DevStruct dev) {
-  vector<unsigned> rxdata;
+  vector<unsigned> data;
 
 
   ValWord< uint32_t > linkup = hw.getNode ( "datapath.region.mgt.ro_regs.common.status.quad_link_status" ).read();
@@ -511,7 +504,7 @@ void mgt_capture(HwInterface & hw, DevStruct dev) {
   }
 
 
-  clearBuffer(hw,dev.quad_id,dev.channel,kRX); /// switches to rx  
+  clearBuffer(hw,dev.quad_id,dev.channel,dev.bufftype); 
   hw.getNode ( "datapath.region.buffer.csr.mode.mode" ).write(MODE_CAPTURE); 
   hw.getNode ( "datapath.region.buffer.csr.mode.datasrc" ).write(SOURCE_INPUT); 
   hw.getNode ( "datapath.region.buffer.csr.range.max_word" ).write(BUFFER_LEN); 
@@ -533,10 +526,10 @@ void mgt_capture(HwInterface & hw, DevStruct dev) {
 
   std::cout << "\tQuad " << dev.quad_id  << std::endl;
   std::cout << "---------------------" << std::endl;
-  readBuffer(hw,dev.quad_id,dev.channel,kRX,rxdata,BUFFER_LEN);
+  readBuffer(hw,dev.quad_id,dev.channel,dev.bufftype,data,BUFFER_LEN);
   for( int i=0; i<BUFFER_LEN; i++ ) {
     std::cout  << "i: "  << std::dec << std::setw(4) << i << "\t"
-	       << "rx: " << std::hex << std::setw(5) << rxdata[i] << "\t\t"
+	       << "rx: " << std::hex << std::setw(5) << data[i] << "\t\t"
 	       << std::endl;
   }
 

@@ -54,8 +54,17 @@ int main(int argc, char ** argv) {
     if( dev.reset_crc_counters >= 0)      mgt_reset_crc_counters(hw,dev); 
     if( dev.dump )                        mgt_dump(hw,dev);	    
   } 
-  else if(dev.mode == MGT_MODE_PLAY)      mgt_play(hw,dev);
-  else if(dev.mode == MGT_MODE_CAPTURE)   mgt_capture(hw,dev); 
+  else if(dev.mode == MGT_MODE_PLAY)      { 
+    if(dev.bufftype < 0) dev.bufftype = kTX;
+    if(!(dev.filename.empty()))
+       mgt_play_file(hw,dev);
+    else
+      mgt_play_pattern(hw,dev);
+  }
+  else if(dev.mode == MGT_MODE_CAPTURE)   {
+    if(dev.bufftype < 0) dev.bufftype = kRX;
+    mgt_capture(hw,dev); 
+  }
   else if(dev.mode == MGT_MODE_ALIGN)     mgt_align(hw,dev); 
   else ;
 

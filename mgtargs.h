@@ -17,6 +17,7 @@
 typedef struct { 
   char device[256];
   int  quad_id=-1;
+  int  bufftype=-1;
   int  channel=0xf;
   int  loopback=-1;
   int  tx_polarity=-1;
@@ -30,6 +31,7 @@ typedef struct {
   int  mode=0;
   int  ttcext=0;
   int  total_delta=0;
+  string filename;
   unsigned prefix=0x0;
 } DevStruct;
 
