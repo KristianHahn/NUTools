@@ -1,4 +1,49 @@
 <!-- <node description="A null algo block" id="payload" fwinfo="endpoint;width=31"/> -->
 <node description="A null algo block" fwinfo="endpoint;">
-    <node id="dummy_payload" address="0x0" fwinfo="endpoint;width=31"/>
+    <!-- [0x0, 0x1] -->
+    <node id="csr" address="0x0" description="ctrl/stat register" fwinfo="endpoint;width=1">
+        <node id="ctrl0" address="0x0">
+	    <node id="bits0" mask="0x000000ff"/>
+            <node id="bits1" mask="0x0000ff00"/>
+            <node id="bits2" mask="0x00ff0000"/>
+            <node id="bits3" mask="0xff000000"/>
+        </node>
+        <node id="ctrl1" address="0x1">
+	    <node id="bits0" mask="0x000000ff"/>
+            <node id="bits1" mask="0x0000ff00"/>
+            <node id="bits2" mask="0x00ff0000"/>
+            <node id="bits3" mask="0xff000000"/>
+        </node>
+        <node id="ctrl2" address="0x2">
+	    <node id="bits0" mask="0x000000ff"/>
+            <node id="bits1" mask="0x0000ff00"/>
+            <node id="bits2" mask="0x00ff0000"/>
+            <node id="bits3" mask="0xff000000"/>
+        </node>
+        <node id="ctrl3" address="0x3">
+	    <node id="bits0" mask="0x000000ff"/>
+            <node id="bits1" mask="0x0000ff00"/>
+            <node id="bits2" mask="0x00ff0000"/>
+            <node id="bits3" mask="0xff000000"/>
+        </node>
+        <node id="stat0" address="0x4">
+	    <node id="bits0" mask="0x000000ff"/>
+            <node id="bits1" mask="0x0000ff00"/>
+            <node id="bits2" mask="0x00ff0000"/>
+            <node id="bits3" mask="0xff000000"/>
+        </node>
+        <node id="stat1" address="0x5">
+	    <node id="bits0" mask="0x000000ff"/>
+            <node id="bits1" mask="0x0000ff00"/>
+            <node id="bits2" mask="0x00ff0000"/>
+            <node id="bits3" mask="0xff000000"/>
+        </node>
+        <node id="stat2" address="0x6">
+	    <node id="bits0" mask="0x000000ff"/>
+            <node id="bits1" mask="0x0000ff00"/>
+            <node id="bits2" mask="0x00ff0000"/>
+            <node id="bits3" mask="0xff000000"/>
+        </node>
+    </node>
+
 </node>
