@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iomanip>
+#include <fstream>
 #include "uhal/uhal.hpp"
 #include "uhal/log/log.hpp"
 #include "mgtargs.h"

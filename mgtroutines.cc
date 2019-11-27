@@ -315,12 +315,13 @@ void clearBuffer(HwInterface & hw, int quad, int chan, int bufftype) {
   hw.getNode ( "datapath.ctrl.chan_sel" ).write(chan);
   hw.getNode ( "datapath.ctrl.txrx_sel" ).write(bufftype);
   hw.dispatch();
-  
+
   for( int i=0; i<BUFFER_LEN; i++ )  {
     hw.getNode ( "datapath.region.buffer.buffer.addr" ).write(i);
     hw.getNode ( "datapath.region.buffer.buffer.data" ).write(0x0);
     hw.dispatch();
   }
+
 };
 
 void writeBuffer(HwInterface & hw, int quad, int chan, int bufftype, std::vector<uint32_t> & data) { 
@@ -329,7 +330,7 @@ void writeBuffer(HwInterface & hw, int quad, int chan, int bufftype, std::vector
   hw.getNode ( "datapath.ctrl.txrx_sel" ).write(bufftype);
   hw.dispatch();
   
-  for( unsigned int i=0; i<data.size()&&i<BUFFER_LEN; i++ )  {
+  for( unsigned int i=0; i<BUFFER_LEN; i++ )  {
     hw.getNode ( "datapath.region.buffer.buffer.addr" ).write(i);
     hw.getNode ( "datapath.region.buffer.buffer.data" ).write(data[i]);
     hw.dispatch();
@@ -343,6 +344,8 @@ void readBuffer(HwInterface & hw, int quad, int chan, int bufftype, std::vector<
   hw.getNode ( "datapath.ctrl.chan_sel" ).write(chan);
   hw.getNode ( "datapath.ctrl.txrx_sel" ).write(bufftype);
   hw.dispatch();
+
+  data.clear();
 
   usleep(10000);
   for( int i=0; i<len&&i<BUFFER_LEN; i++ )  {
@@ -438,7 +441,7 @@ void mgt_play_pattern(HwInterface & hw,DevStruct dev) {
 void mgt_play_file(HwInterface & hw,DevStruct dev) {
   vector<unsigned> data;
 
-  ifstream mem = ifstream(dev.filename);
+  std::ifstream mem(dev.filename);
   unsigned val;
   while( !(mem.eof()) && data.size() < BUFFER_LEN )  { 
     mem >> std::hex >> val;
@@ -498,30 +501,33 @@ void mgt_capture(HwInterface & hw, DevStruct dev) {
   vector<unsigned> data;
 
 
-  ValWord< uint32_t > linkup = hw.getNode ( "datapath.region.mgt.ro_regs.common.status.quad_link_status" ).read();
-  hw.dispatch();
-  while( !linkup ) {
-    linkup = hw.getNode ( "datapath.region.mgt.ro_regs.common.status.quad_link_status" ).read();
-    hw.dispatch();
-    usleep(1000);
-  }
+  // ValWord< uint32_t > linkup = hw.getNode ( "datapath.region.mgt.ro_regs.common.status.quad_link_status" ).read();
+  // hw.dispatch();
+  // while( !linkup ) {
+  //   linkup = hw.getNode ( "datapath.region.mgt.ro_regs.common.status.quad_link_status" ).read();
+  //   hw.dispatch();
+  //   usleep(1000);
+  // }
 
-
+  std::cout << "dev.bufftype: " << dev.bufftype << std::endl;
   clearBuffer(hw,dev.quad_id,dev.channel,dev.bufftype); 
   hw.getNode ( "datapath.region.buffer.csr.mode.mode" ).write(MODE_CAPTURE); 
   hw.getNode ( "datapath.region.buffer.csr.mode.datasrc" ).write(SOURCE_INPUT); 
   hw.getNode ( "datapath.region.buffer.csr.range.max_word" ).write(BUFFER_LEN); 
-  hw.getNode ( "datapath.region.buffer.csr.mode.stbsrc" ).write(STROBE_DATA); 
+  if( dev.bufftype  == kRX )
+    hw.getNode ( "datapath.region.buffer.csr.mode.stbsrc" ).write(STROBE_DATA); 
+  else
+    hw.getNode ( "datapath.region.buffer.csr.mode.stbsrc" ).write(STROBE_HIGH); 
   hw.dispatch();	  
 
 
 
   // Capture the buffers
-  //hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
-  //hw.dispatch();
-  //usleep(10000); // <- this sleep is important !!!!
-
   hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
+  hw.dispatch();
+  usleep(10000); // <- this sleep is important !!!!
+
+  //  hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
   hw.getNode ( "ttc.csr.ctrl.b_cmd" ).write(0xc); 
   hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(1); 
   hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(0); 
