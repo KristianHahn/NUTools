@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
+#include <string>
 
 #define MGT_MODE_SET     0
 #define MGT_MODE_PLAY    1
@@ -13,6 +14,7 @@
 #define MGT_MODE_ALIGN   4
 #define MGT_RESET_TOGGLE 999
 
+using namespace std;
 
 typedef struct { 
   char device[256];
