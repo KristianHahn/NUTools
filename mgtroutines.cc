@@ -1,4 +1,4 @@
-
+#include <fstream>
 #include "mgtargs.h"
 #include "mgtroutines.h"
 
@@ -318,7 +318,7 @@ void clearBuffer(HwInterface & hw, int quad, int chan, int bufftype) {
   
   for( int i=0; i<BUFFER_LEN; i++ )  {
     hw.getNode ( "datapath.region.buffer.buffer.addr" ).write(i);
-    hw.getNode ( "datapath.region.buffer.buffer.data" ).write(0x1);
+    hw.getNode ( "datapath.region.buffer.buffer.data" ).write(0x0);
     hw.dispatch();
   }
 };
@@ -440,18 +440,10 @@ void mgt_play_file(HwInterface & hw,DevStruct dev) {
 
   ifstream mem = ifstream(dev.filename);
   unsigned val;
-  while( !(mem.eof()) && data.size() < BUFFSIZE )  { 
+  while( !(mem.eof()) && data.size() < BUFFER_LEN )  { 
     mem >> std::hex >> val;
+    if(mem.eof()) break;
     data.push_back(val);
-  }
-
-  if( dev.dump ) {
-    std::cout << "\t\t buffer" << std::endl;
-    for( int i=0; i<data.size(); i++ ) {     
-      std::cout << "i: " << std::dec << i << "\t"
-		<< "data: " << std::hex << data[i]
-		<< std::endl;
-    }
   }
 
 
@@ -464,7 +456,7 @@ void mgt_play_file(HwInterface & hw,DevStruct dev) {
   // }
 
 
-  clearBuffer(hw,dev.quad_id,dev.channel,kTX); 	// switches to tx
+  clearBuffer(hw,dev.quad_id,dev.channel,dev.bufftype); 	// switches to tx
   usleep(10000);
   hw.dispatch();
   usleep(10000);
@@ -474,8 +466,7 @@ void mgt_play_file(HwInterface & hw,DevStruct dev) {
   hw.getNode ( "datapath.region.buffer.csr.mode.stbsrc" ).write(STROBE_HIGH); 
   hw.dispatch();
   usleep(10000);
-  writeBuffer(hw,dev.quad_id,dev.channel,kTX,txdata);
-
+  writeBuffer(hw,dev.quad_id,dev.channel,dev.bufftype,data);
 
 
   // Play the buffers
@@ -488,6 +479,18 @@ void mgt_play_file(HwInterface & hw,DevStruct dev) {
   hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(1); 
   hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(0); 
   hw.dispatch();	
+
+  if( dev.dump ) {
+    data.clear();
+    readBuffer(hw,dev.quad_id,dev.channel,dev.bufftype,data,BUFFER_LEN);
+    std::cout << "\t\t buffer" << std::endl;
+    for( int i=0; i<data.size(); i++ ) {     
+      std::cout << "i: " << std::dec << i << "\t"
+		<< "data: " << std::hex << data[i]
+		<< std::endl;
+    }
+  }
+
 }
 
 

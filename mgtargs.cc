@@ -22,7 +22,7 @@ void mgt_arg_help() {
   printf("\t--rxpolarity(=)<mode> :  Defaults to all channels\n"); 
   printf("\t--rxlpm(=)<mode> :  Defaults to all channels\n"); 
   printf("\t--channel(=)<value> or -c<value> : A channel ID (0-3) for play/capture, a bitmask (0x1-0xf) otherwise \n"); 
-  printf("\t--bufftype(=)<value> or -b<value> : Buffer type for play/capture, "tx" or "rx" \n"); 
+  printf("\t--bufftype(=)<value> or -b<value> : Buffer type for play/capture, 'tx' or 'rx' \n"); 
   printf("\t--play(=)<prefix> or -p<prefix>: Requires channel spec.  Prefix added to MS nibble of each 16b word \n"); 
   printf("\t\t--file(=)<filename> or -f<filename>: optional filename for play\n"); 
   printf("\t--capture : Requires channel specification\n"); 
@@ -149,15 +149,16 @@ static struct option long_options[] =
 	    fprintf(stderr,"Error: filename must be specified with -f<filename> or --file(=)<filename>\n");
 	    return 1;
 	  }
-	  dev.filename = string(optarg);
+	  dev.filename = std::string(optarg);
 	  break;  
 	case 'b':  
 	  printf("bufftype: %s\n", optarg);  
-	  if(optarg==NULL || (strcmp(optarg,"tx",NULL) && strcmp(optarg,"rx",NULL) ) ) {
+	  if(optarg==NULL || (strcmp(optarg,"tx") && strcmp(optarg,"rx") ) ) {
 	    fprintf(stderr,"Error: bufftype mask must be specified with -b<'tx'|'rx'> or --bufftype(=)<'tx'|'rx'>\n");
 	    return 1;
 	  }
-          if( !strcmp(optarg,"tx",NULL) ) dev.bufftype=1;
+          if( !strcmp(optarg,"tx") ) dev.bufftype=1;
+	  else dev.bufftype=0;
 	  break;  
 	case 'l':  
 	  printf("loopback: %s\n", optarg);  

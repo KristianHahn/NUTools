@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
+#include <string>
+
 
 #define MGT_MODE_SET     0
 #define MGT_MODE_PLAY    1
@@ -31,7 +33,7 @@ typedef struct {
   int  mode=0;
   int  ttcext=0;
   int  total_delta=0;
-  string filename;
+  std::string filename;
   unsigned prefix=0x0;
 } DevStruct;
 
