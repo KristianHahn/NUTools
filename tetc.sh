@@ -36,7 +36,9 @@ poke 0x40020008 0x3; poke 0x40020008 0x0; poke 0x40020008 0x3;
 ./regtool.exe -dyuge.c2c.0 -rpayload.csr.ctrl0.TC_ctrl ${CTRL_CAPTURE}
 
 
-
-
-
+# capture the data using :
+# the TEs, eg: TE#0 on quad 0, channel 0 
+#./mgttool.exe -dyuge.c2c.0 -q0 -c0 -btx --capture  | less
+# the TC
+#./mgttool.exe -dyuge.c2c.0 -q3 -c1 -btx --capture  | less
 
