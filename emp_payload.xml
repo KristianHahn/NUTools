@@ -3,10 +3,8 @@
     <!-- [0x0, 0x1] -->
     <node id="csr" address="0x0" description="ctrl/stat register" fwinfo="endpoint;width=1">
         <node id="ctrl0" address="0x0">
-	    <node id="bits0" mask="0x000000ff"/>
-            <node id="bits1" mask="0x0000ff00"/>
-            <node id="bits2" mask="0x00ff0000"/>
-            <node id="bits3" mask="0xff000000"/>
+	    <node id="TE_ctrl" mask="0x0000000f"/>
+	    <node id="TC_ctrl" mask="0x000000f0"/>
         </node>
         <node id="ctrl1" address="0x1">
 	    <node id="bits0" mask="0x000000ff"/>
