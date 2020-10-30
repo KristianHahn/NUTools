@@ -1,3 +1,0 @@
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:../lib/:../../lib
-export UHAL_ENABLE_IPBUS_UHAL=1
-export UHAL_ENABLE_IPBUS_MMAP=1
