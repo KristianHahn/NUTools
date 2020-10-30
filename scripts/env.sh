@@ -1,0 +1,7 @@
+#export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:../lib/:../../lib
+export UHAL_ENABLE_IPBUS_UHAL=1
+export UHAL_ENABLE_IPBUS_MMAP=1
+
+export NU_TOOLS_BASE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd | sed -e 's./scripts..' )"
+export NU_TOOLS_XML=${NU_TOOLS_BASE}/xml
+export PATH=${NU_TOOLS_BASE}/bin:${PATH}

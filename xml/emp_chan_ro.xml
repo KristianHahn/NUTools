@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="LATIN1"?>
+
+<node >
+  <node id="rx_trailer" address="0x0"/>
+  <node id="status" address="0x1">
+    <node id="txresetdone" mask="0x80000000" /> 
+    <node id="rxresetdone" mask="0x40000000" /> 
+    <node id="txpmaresetdone" mask="0x20000000" />
+    <node id="rxpmaresetdone" mask="0x10000000" />
+    <node id="rxcdrlock" mask="0x08000000" />
+    <node id="link_status" mask="0x04000000" /> 
+    <node id="link_down_latched" mask="0x02000000" /> 
+    <node id="not_in_use" mask="0x01ff0000" /> 
+    <node id="crc_error" mask="0x0000ff00"/>
+    <node id="crc_checked" mask="0x000000ff"/> 
+  </node>
+</node>
+

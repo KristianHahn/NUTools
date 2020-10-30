@@ -1,0 +1,40 @@
+<node id="SRsender" address="0x10000"> 
+    <node id="ctrl" address="0x0000" permission="rw" tags="test"/>
+    <node id="status_addr" address="0x0001" permission="rw" tags="test"/>
+<!-- KH new multichan -->
+    <node id="ram_data_size" address="0x0002" permission="rw" tags="test"/> 
+
+    <node id="status" address="0x0004" permission="r" tags="test"/>
+    <node id="status_data_l" address="0x0005" permission="r" tags="test"/>
+    <node id="status_data_h" address="0x0006" permission="r" tags="test"/>
+<!--
+
+    <node id="status" address="0x0008" permission="r" tags="test"/>
+    <node id="status_data_l" address="0x0009" permission="r" tags="test"/>
+    <node id="status_data_h" address="0x000a" permission="r" tags="test"/>
+    <node id="status_data_c2" address="0x000b" permission="r" tags="test"/>
+    <node id="status_data_c3" address="0x000c" permission="r" tags="test"/>
+-->
+
+   
+    <node id="ram0" address="0x800" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+
+    <node id="ram1" address="0xa00" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+
+    <node id="ram2" address="0xc00" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+
+    <node id="ram3" address="0xe00" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+
+</node> 
