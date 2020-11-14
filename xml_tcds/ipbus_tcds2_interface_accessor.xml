@@ -14,6 +14,10 @@
 
       <node id="link_test_mode" address="0x00000000" mask="0x00000008" permission="rw" />
 
+      <!-- KH -->
+      <node id="txpolarity" address="0x00000000" mask="0x00000010" permission="rw" />
+      <node id="rxpolarity" address="0x00000000" mask="0x00000020" permission="rw" />
+
       <!-- PRBS generator/checker resets. -->
       <node id="prbs_gen_reset"  address="0x00000001" mask="0x00000001" permission="rw" />
       <node id="prbs_chk_reset"  address="0x00000001" mask="0x00000002" permission="rw" />

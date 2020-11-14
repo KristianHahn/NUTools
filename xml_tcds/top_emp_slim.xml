@@ -4,9 +4,25 @@
     <node id="ttc" module="file://emp_ttc.xml" address="0x40"/>
     <node id="datapath" module="file://emp_datapath.xml" address="0x1000"/>
 <!--    <node id="payload" module="file://emp_payload.xml" address="0x80000000" fwinfo="endpoint;width=31"/> -->
-    <node id="tcds2" module="file://ipbus_tcds2_interface_accessor.xml" address="0x8100000"/>
 
-   <node id="freq" module="file://ipbus_freq_ctr.xml" address="0xc0000000"/>
+
+<!-- comment/replace for nov 13 tcds2 orbit counting via misc -->
+<!-- 
+    <node id="tcds2" module="file://ipbus_tcds2_interface_accessor.xml" address="0x8100000"/>
+    <node id="freq" module="file://ipbus_freq_ctr.xml" address="0xc0000000"/>
+-->
+
+    <node id="tcds2" module="file://ipbus_tcds2_interface_accessor.xml" address="0x82000000"/>
+    <node id="freq" module="file://ipbus_freq_ctr.xml" address="0x84000000"/> 
+    <node id="misc" address="0x88000000" fwinfo="endpoint;width=2">
+    	<node id="control" address="0x0" permission="rw">
+		<node id="reset_counters" mask="0x00000001"/>
+	</node>
+	<node id="status" address="0x2" permission="r">
+		<node id="orbit_counter" address="0x0"/>
+		<node id="bx_between_orbit_signals" address="0x1"/>
+	</node>
+    </node>
 
 
 </node>
