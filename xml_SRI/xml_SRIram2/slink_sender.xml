@@ -1,0 +1,90 @@
+<node id="SRsender" address="0x100000"> 
+    <node id="csr" address="0x0000" permission="rw" tags="test">
+      <node id="ctrl0" address="0x0000" permission="rw" tags="test"/>
+      <node id="ctrl1" address="0x0001" permission="rw" tags="test"/>
+      <node id="ctrl2" address="0x0002" permission="rw" tags="test"/>
+      <node id="status0" address="0x0004" permission="r" tags="test"/>
+      <node id="status1" address="0x0005" permission="r" tags="test"/>
+      <node id="status2" address="0x0006" permission="r" tags="test"/>
+    </node> 
+
+    <node id="sriram0" address="0x8000" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+
+    <node id="sriram1" address="0xa000" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+
+    <node id="sriram2" address="0xc000" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+
+    <node id="sriram3" address="0xe000" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+
+<!--
+    <node id="fifocsr" address="0x10000" permission="rw" tags="test">
+      <node id="ctrl" address="0x0000" permission="rw" tags="test"/>
+      <node id="status" address="0x0001" permission="r" tags="test"/>
+    </node>
+
+    <node id="fiforam" address="0x18000" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+-->
+   <node id="cdfifo" address="0x10000" permission="rw" tags="test">
+    <node id="csr" address="0x0000" permission="rw" tags="test">
+      <node id="ctrl" address="0x0000" permission="rw" tags="test"/>
+      <node id="status" address="0x0001" permission="r" tags="test"/>
+    </node>
+    <node id="ram" address="0x8000" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+   </node>
+
+<!--
+    <node id="fifocsr2" address="0x20000" permission="rw" tags="test">
+      <node id="ctrl" address="0x0000" permission="rw" tags="test"/>
+      <node id="status" address="0x0001" permission="r" tags="test"/>
+    </node>
+
+    <node id="fiforam2" address="0x28000" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+
+    <node id="fiforam3" address="0x30000" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+-->
+
+
+  <node id="ttcfifo" address="0x20000" permission="rw" tags="test">
+    <node id="csr" address="0x0000" permission="rw" tags="test">
+      <node id="ctrl" address="0x0000" permission="rw" tags="test"/>
+      <node id="status" address="0x0001" permission="r" tags="test"/>
+    </node>
+
+    <node id="ram0" address="0x8000" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+
+    <node id="ram1" address="0xc000" description="1kword dual-port RAM72 (ported)" fwinfo="endpoint;width=1">
+        <node id="addr" address="0x0"/>
+        <node id="data" mode="port" size="0x800" address="0x1"/>
+    </node>
+  </node>
+
+
+
+</node> 

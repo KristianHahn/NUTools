@@ -1,0 +1,9 @@
+<node id="payload" address="0x80000000">
+    <!-- [0x0, 0x1] -->
+    <node id="csr" address="0x0" description="ctrl/stat register" >
+        <node id="ctrl" address="0x0"/>
+        <node id="stat" address="0x1"/>
+    </node>
+
+</node>
+<!-- <node description="A null algo block" id="payload" fwinfo="endpoint;width=31"/> -->

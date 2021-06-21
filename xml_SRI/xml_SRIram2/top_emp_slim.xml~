@@ -1,0 +1,21 @@
+<node id="TOP">
+    <node id="info" module="file://emp_info.xml" address="0x0"/>
+    <node id="ctrl" module="file://emp_ctrl.xml" address="0x8"/>
+    <node id="ttc" module="file://emp_ttc.xml" address="0x40"/>
+    <node id="datapath" module="file://emp_datapath.xml" address="0x1000"/>
+    <node id="sender" module="file://slink_sender.xml" address="0x10000" />
+
+    <node id="freq" address="0xc0000000" description="TTC frequency counter" fwinfo="endpoint;width=1">
+		<node id="ctrl" address="0x0">
+			<node id="chan_sel" mask="0xf"/>
+			<node id="en_crap_mode" mask="0x10"/>
+		</node>
+		<node id="freq" address="0x1">
+			<node id="count" mask="0xffffff"/>
+			<node id="valid" mask="0x1000000"/>
+		</node>
+	</node>
+
+ 
+    <node id="payload" module="file://emp_payload.xml" address="0x80000000" fwinfo="endpoint;width=31"/>
+</node>
