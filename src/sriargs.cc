@@ -48,6 +48,7 @@ static struct option long_options[] =
     {"file",                required_argument, NULL, 'f'},
     {"payload",             no_argument,       NULL, 0},
     {"capture",             no_argument,       NULL, 0},
+    {"parse",               no_argument,       NULL, 0},
     {"load_ttcfifo",        no_argument,       NULL, 0},
     {"load_cdfifo",         no_argument,       NULL, 0},
     {"play_cdfifo",         no_argument,       NULL, 0},
@@ -70,6 +71,13 @@ static struct option long_options[] =
         {  
 	case 0: 
 	  printf("option -->%s\n", long_options[option_index].name); 
+	  if(!strcmp(long_options[option_index].name,"parse") ) {
+	    printf("parse capture\n");
+	    dev.mode=SRI_MODE_PARSE_CAPTURE;
+	    // if(optarg) dev.prefix = (strtoul(optarg,NULL,16))<<12U;
+	    // else dev.prefix=0;
+	    // printf("\tprefix value: 0x%x\n",dev.prefix);
+	  }
 	  if(!strcmp(long_options[option_index].name,"payload") ) {
 	    printf("payload\n");
 	    dev.mode=SRI_MODE_PAYLOAD;
