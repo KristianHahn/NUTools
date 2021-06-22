@@ -11,7 +11,7 @@ INCLUDE_FLAGS=$(foreach d, $(INCLUDE_DIRS), -I$d)
 LD_FLAGS=$(foreach d, $(LIB_DIRS), -L$d) $(foreach f, $(LIBS), -l$f)
 
 
-all : reg ram mgt ttc
+all : reg ram mgt ttc sri
 
 mgt : mgttool.exe
 mgttool.exe : obj/mgtargs.o obj/mgtroutines.o
@@ -25,9 +25,11 @@ ttctool.exe : obj/ttcargs.o obj/ttcroutines.o
 ram : ramtool.exe
 ramtool.exe : obj/regargs.o 
 
-
 #payload : payloadtool.exe
 #payloadtool.exe : mgtargs.o mgtroutines.o
+
+sri : sritool.exe
+sritool.exe : obj/sriargs.o 
 
 obj/%.o : src/%.cc
 	$(CXX) $(CXX_FLAGS) $(INCLUDE_FLAGS) -c $< -o $@
