@@ -29,7 +29,7 @@ ramtool.exe : obj/regargs.o
 #payloadtool.exe : mgtargs.o mgtroutines.o
 
 sri : sritool.exe
-sritool.exe : obj/sriargs.o 
+sritool.exe : obj/sriargs.o obj/sriroutines.o
 
 obj/%.o : src/%.cc
 	$(CXX) $(CXX_FLAGS) $(INCLUDE_FLAGS) -c $< -o $@
