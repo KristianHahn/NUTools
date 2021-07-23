@@ -1,5 +1,5 @@
-#ifndef MGTARGS
-#define MGTARGS
+#ifndef SRIARGS
+#define SRIARGS
 
 #include <stdio.h>
 #include <unistd.h>

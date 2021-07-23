@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "sriargs.h"
+#include "sriroutines.h"
 
 using namespace uhal;
 using namespace std;
@@ -43,12 +44,12 @@ int main(int argc, char ** argv) {
   // payload generation with pause, working
   if(dev.mode == SRI_MODE_PAYLOAD) { 
     // turn off bypass ram
-    hw.getNode("sender.csr.ctrl0.use_bypass_ram").write(0x0);
+    hw.getNode("slink.csr.ctrl0.use_bypass_ram").write(0x0);
     hw.dispatch();
     sleep(1);
     // turn off cdfifo ram
-    hw.getNode("sender.channel1.cdfifo.csr.ctrl").write(0x0);
-    hw.getNode("sender.channel0.cdfifo.csr.ctrl").write(0x0);
+    hw.getNode("slink.channel_1.cdfifo.csr.ctrl").write(0x0);
+    hw.getNode("slink.channel_0.cdfifo.csr.ctrl").write(0x0);
     hw.dispatch();
 
     uint32_t ctrlwrd = 0x80000000;
@@ -63,12 +64,12 @@ int main(int argc, char ** argv) {
   
   // set capture ctrl fifo to ram & readout, working
   if( dev.mode == SRI_MODE_CDFIFO_CAPTURE ) { 
-    hw.getNode("sender.channel0.cdfifo.csr.ctrl.capture_to_ram").write(1);
+    hw.getNode("slink.channel_0.cdfifo.csr.ctrl.capture_to_ram").write(1);
     hw.dispatch();
     sleep(1);
-    hw.getNode("sender.channel0.cdfifo.ram.addr").write(0);
+    hw.getNode("slink.channel_0.cdfifo.ram.addr").write(0);
     hw.dispatch();
-    rvec = hw.getNode("sender.channel0.cdfifo.ram.data").readBlock(1024);//ram.data
+    rvec = hw.getNode("slink.channel_0.cdfifo.ram.data").readBlock(1024);//ram.data
     hw.dispatch();
     
     printf("vec size: %d\n", rvec.size() );
@@ -82,7 +83,7 @@ int main(int argc, char ** argv) {
   if( dev.mode == SRI_MODE_LOAD_TTCFIFO ) { 
 
     // hold seq in rst till filled
-    //hw.getNode("sender.csr.ctrl2").write(0x40000000);
+    //hw.getNode("slink.csr.ctrl2").write(0x40000000);
     //hw.dispatch();
 
     //load
@@ -98,7 +99,7 @@ int main(int argc, char ** argv) {
   if( dev.mode == SRI_MODE_LOAD_CDFIFO ) { 
 
     // hold seq in rst till filled
-    //hw.getNode("sender.csr.ctrl2").write(0x40000000);
+    //hw.getNode("slink.csr.ctrl2").write(0x40000000);
     //hw.dispatch();
 
     //load
@@ -108,7 +109,7 @@ int main(int argc, char ** argv) {
     sleep(1);
 
     char strA[256];
-    sprintf(strA,"sender.channel%d.cdfifo.csr.ctrl", dev.channel);
+    sprintf(strA,"slink.channel_%d.cdfifo.csr.ctrl", dev.channel);
     hw.getNode(strA).write(nwords);
     hw.dispatch();
     sleep(1);
@@ -117,20 +118,20 @@ int main(int argc, char ** argv) {
   if( dev.mode == SRI_MODE_PLAY_CDFIFO ) { 
   
     // turn off bypass, payload
-    hw.getNode("sender.csr.ctrl0.use_bypass_ram").write(0x0);
+    hw.getNode("slink.csr.ctrl0.use_bypass_ram").write(0x0);
     hw.getNode("payload.csr.ctrl").write(0x0);
     hw.dispatch();
 
     //load c/d, ttc, let seq go
-    //hw.getNode("sender.csr.ctrl2").write(0x00000000);
+    //hw.getNode("slink.csr.ctrl2").write(0x00000000);
     //    hw.dispatch();
 
     if( dev.pause > 0){
-      hw.getNode("sender.channel0.cdfifo.csr.ctrl.ram_read_pause").write(dev.pause);
-      hw.getNode("sender.channel1.cdfifo.csr.ctrl.ram_read_pause").write(dev.pause);
+      hw.getNode("slink.channel_0.cdfifo.csr.ctrl.ram_read_pause").write(dev.pause);
+      hw.getNode("slink.channel_1.cdfifo.csr.ctrl.ram_read_pause").write(dev.pause);
     } else {
-      hw.getNode("sender.channel0.cdfifo.csr.ctrl.ram_read_pause").write(0x3ff);
-      hw.getNode("sender.channel1.cdfifo.csr.ctrl.ram_read_pause").write(0x3ff);
+      hw.getNode("slink.channel_0.cdfifo.csr.ctrl.ram_read_pause").write(0x3ff);
+      hw.getNode("slink.channel_1.cdfifo.csr.ctrl.ram_read_pause").write(0x3ff);
     }
 
     hw.dispatch();
@@ -138,10 +139,10 @@ int main(int argc, char ** argv) {
 
 
     
-    hw.getNode("sender.channel1.cdfifo.csr.ctrl.ram_loaded").write(1);
-    hw.getNode("sender.channel1.cdfifo.csr.ctrl.load_from_ram").write(1);
-    hw.getNode("sender.channel0.cdfifo.csr.ctrl.ram_loaded").write(1);
-    hw.getNode("sender.channel0.cdfifo.csr.ctrl.load_from_ram").write(1);
+    hw.getNode("slink.channel_1.cdfifo.csr.ctrl.ram_loaded").write(1);
+    hw.getNode("slink.channel_1.cdfifo.csr.ctrl.load_from_ram").write(1);
+    hw.getNode("slink.channel_0.cdfifo.csr.ctrl.ram_loaded").write(1);
+    hw.getNode("slink.channel_0.cdfifo.csr.ctrl.load_from_ram").write(1);
     hw.dispatch();
   }
 
@@ -152,7 +153,7 @@ int main(int argc, char ** argv) {
     //  if(dev.set) {
     printf("writing ...\n"); 
     int nwords = load_bypass_data( hw,dev.filename.c_str(),dev.channel);
-    hw.getNode("sender.csr.ctrl0.bypass_ram_nwords").write(nwords);
+    hw.getNode("slink.csr.ctrl0.bypass_ram_nwords").write(nwords);
     hw.dispatch();
     sleep(1);
   }
@@ -169,7 +170,7 @@ int main(int argc, char ** argv) {
 
     // send the ram data
     unsigned ctrlwrd = 1;
-    hw.getNode("sender.csr.ctrl0.use_bypass_ram").write(ctrlwrd);
+    hw.getNode("slink.csr.ctrl0.use_bypass_ram").write(ctrlwrd);
     hw.dispatch();
 
     sleep(1);
