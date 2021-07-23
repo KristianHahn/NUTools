@@ -39,3 +39,21 @@ obj/%.o : src/%.cc
 
 clean :
 	rm obj/*.o bin/*.exe
+
+connection :
+	   @if [ "x${NU_TOOLS_XML}" == "x" ]; then\
+	      echo "Set NU_TOOLS_XML env variable first";\
+	   else\
+	      xmldir=`echo ${NU_TOOLS_XML} | sed -e 's,file://,,'`;\
+	      cfile=$${xmldir}/connection.xml;\
+	      if ((  `grep -c Atom /proc/cpuinfo` > 0 )); then\
+	         echo " creating $$cfile";\
+		 echo "<connections>" > $$cfile;\
+		 echo " <connection id=\"artix\" uri=\"ipbuspcie-2.0:///dev/serenity_pcie/artix/h2c,/dev/serenity_pcie/artix/c2h\" address_table=\"file://top_artix.xml\"/>" >>$$cfile;\
+		 echo " <connection id=\"x0\" uri=\"ipbuspcie-2.0:///dev/serenity_pcie/x0/h2c,/dev/serenity_pcie/x0/c2h\" address_table=\"${NU_TOOLS_XML}/top_emp.xml\"/>" >> $$cfile;\
+		 echo " <connection id=\"x1\" uri=\"ipbuspcie-2.0:///dev/serenity_pcie/x1/h2c,/dev/serenity_pcie/x1/c2h\" address_table=\"${NU_TOOLS_XML}/top_emp.xml\"/>" >> $$cfile;\
+		 echo "</connections>" >> $$cfile;\
+	      else\
+		 echo "Zynq?";\
+	      fi;\
+           fi;
