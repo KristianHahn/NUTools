@@ -416,7 +416,7 @@ void mgt_play_pattern(HwInterface & hw,DevStruct dev) {
   usleep(10000);
   hw.getNode ( "datapath.region.buffer.csr.mode.mode" ).write(MODE_PLAY); 
   hw.getNode ( "datapath.region.buffer.csr.mode.datasrc" ).write(SOURCE_BUFFER); 
-  hw.getNode ( "datapath.region.buffer.csr.range.max_word" ).write(BUFFER_LEN);
+  hw.getNode ( "datapath.region.buffer.csr.mode.max_word" ).write(BUFFER_LEN);
   hw.getNode ( "datapath.region.buffer.csr.mode.stbsrc" ).write(STROBE_HIGH); 
   hw.dispatch();
   usleep(10000);
@@ -425,14 +425,14 @@ void mgt_play_pattern(HwInterface & hw,DevStruct dev) {
 
 
   // Play the buffers
-  hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
+  //aug'21  hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
   hw.dispatch();
   usleep(10000); // <- this sleep is important !!!!
 
   //hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
-  hw.getNode ( "ttc.csr.ctrl.b_cmd" ).write(0xc); 
-  hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(1); 
-  hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(0); 
+  hw.getNode ( "ttc.master.common.ctrl.b_cmd" ).write(0xc); 
+  hw.getNode ( "ttc.master.common.ctrl.force_b_cmd" ).write(1); 
+  hw.getNode ( "ttc.master.common.ctrl.force_b_cmd" ).write(0); 
   hw.dispatch();	
 }
 
@@ -513,7 +513,7 @@ void mgt_capture(HwInterface & hw, DevStruct dev) {
   clearBuffer(hw,dev.quad_id,dev.channel,dev.bufftype); 
   hw.getNode ( "datapath.region.buffer.csr.mode.mode" ).write(MODE_CAPTURE); 
   hw.getNode ( "datapath.region.buffer.csr.mode.datasrc" ).write(SOURCE_INPUT); 
-  hw.getNode ( "datapath.region.buffer.csr.range.max_word" ).write(BUFFER_LEN); 
+  hw.getNode ( "datapath.region.buffer.csr.mode.max_word" ).write(BUFFER_LEN); 
   if( dev.bufftype  == kRX )
     hw.getNode ( "datapath.region.buffer.csr.mode.stbsrc" ).write(STROBE_DATA); 
   else
@@ -523,14 +523,14 @@ void mgt_capture(HwInterface & hw, DevStruct dev) {
 
 
   // Capture the buffers
-  hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
+  // KH commnet aug'21  hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
   hw.dispatch();
   usleep(10000); // <- this sleep is important !!!!
 
   //  hw.getNode ( "ttc.csr.ctrl.ttc_sync_en" ).write(0); 
-  hw.getNode ( "ttc.csr.ctrl.b_cmd" ).write(0xc); 
-  hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(1); 
-  hw.getNode ( "ttc.csr.ctrl.b_cmd_force" ).write(0); 
+  hw.getNode ( "ttc.master.common.ctrl.b_cmd" ).write(0xc); 
+  hw.getNode ( "ttc.master.common.ctrl.force_b_cmd" ).write(1); 
+  hw.getNode ( "ttc.master.common.ctrl.force_b_cmd" ).write(0); 
   hw.dispatch();	
 
   std::cout << "\tQuad " << dev.quad_id  << std::endl;
