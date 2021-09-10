@@ -48,7 +48,7 @@ connection :
 	      cfile=$${xmldir}/connection.xml;\
 	      echo " creating $$cfile";\
 	      echo "<connections>" > $$cfile;\
-	      if ((  `grep -c Atom /proc/cpuinfo` > 0 )); then\
+	      if ((  `grep -c Intel /proc/cpuinfo` > 0 )); then\
 		 echo " <connection id=\"artix\" uri=\"ipbuspcie-2.0:///dev/serenity_pcie/artix/h2c,/dev/serenity_pcie/artix/c2h\" address_table=\"file://top_artix.xml\"/>" >>$$cfile;\
 		 echo " <connection id=\"x0\" uri=\"ipbuspcie-2.0:///dev/serenity_pcie/x0/h2c,/dev/serenity_pcie/x0/c2h\" address_table=\"${NU_TOOLS_XML}/top_emp.xml\"/>" >> $$cfile;\
 		 echo " <connection id=\"x1\" uri=\"ipbuspcie-2.0:///dev/serenity_pcie/x1/h2c,/dev/serenity_pcie/x1/c2h\" address_table=\"${NU_TOOLS_XML}/top_emp.xml\"/>" >> $$cfile;\
