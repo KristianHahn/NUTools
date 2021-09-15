@@ -12,8 +12,8 @@ regtool.exe -dx0 -rpayload.ctrl.pkt_len 0xFF
 # regtool.exe -dx0 -rpayload.ctrl.reg.decrement_len 0x1
 
 # configure the eth interface
-regtool.exe -dx0 -reth10g.ctrl.local_ip C0A80253
-regtool.exe -dx0 -reth10g.ctrl.remote_ip C0A80203
+regtool.exe -dx0 -reth10g.ctrl.local_ip C0A80352
+regtool.exe -dx0 -reth10g.ctrl.remote_ip C0A80302
 regtool.exe -dx0 -reth10g.ctrl.ports.local 04D2
 regtool.exe -dx0 -reth10g.ctrl.ports.remote 04D2
 
