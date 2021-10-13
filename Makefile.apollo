@@ -53,7 +53,7 @@ connection :
 		 echo " <connection id=\"x0\" uri=\"ipbuspcie-2.0:///dev/serenity_pcie/x0/h2c,/dev/serenity_pcie/x0/c2h\" address_table=\"${NU_TOOLS_XML}/top_emp.xml\"/>" >> $$cfile;\
 		 echo " <connection id=\"x1\" uri=\"ipbuspcie-2.0:///dev/serenity_pcie/x1/h2c,/dev/serenity_pcie/x1/c2h\" address_table=\"${NU_TOOLS_XML}/top_emp.xml\"/>" >> $$cfile;\
 	      else\
-		 if [[ x`ifconfig | grep -A1 eth0 | tail -1| awk '{print $2}'` == "x10.0.0.26" ]]; then\
+		  if (( `ifconfig eth0 | grep -c 10.0.0.26` == 1 )); then\
 		        echo " <connection id=\"apollo.c2c.vu7p\" uri=\"ipbusmmap-2.0:///dev/uio_IPBUS_VIRTEX?offset=0x0\" address_table=\"file://top_emp.xml\" />" >> $$cfile;\
 		 else\
 			echo " <connection id=\"apollo.c2c.vu7p\" uri=\"ipbusmmap-2.0:///dev/uioIPBUS_VIRTEX?offset=0x0\" address_table=\"file://top_emp.xml\" />" >> $$cfile;\
