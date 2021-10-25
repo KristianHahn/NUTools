@@ -6,6 +6,8 @@
  
 run_in_dec=$1 
 run_in_hex=`echo "obase=16; ${run_in_dec}" | bc`; 
+
+echo -n "    * "; hostname
  
 # pkgdir set by ssh env 
 source ./scripts/env.sh 
@@ -37,8 +39,6 @@ sleep 2;
 regtool.exe -dx1 -reth10g.ctrl.reg.heartbeat 1
 
 
-#output for PC
-echo -n "    * "; hostname
 echo -n "    * "; regtool.exe -dx1 -reth10g.ctrl.reg.run | tail -1 
  
 # reenable the link  
