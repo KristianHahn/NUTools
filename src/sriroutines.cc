@@ -47,10 +47,13 @@ load_bypass_data(uhal::HwInterface & hw, const char * fname, int channel)
     unsigned shifted;
     for( int j=0; j<4; j++ ) { 
       shifted = (valC>>(j*16)) & 0xffff;
-      shifted |= (valA<<16);
+      //shifted |= (valA<<16);
+      if( valA > 0 ) shifted |= 1<<17;
       ram0.push_back(shifted);
       shifted = (valB>>(j*16)) & 0xffff;
-      shifted |= (valA<<16);
+      //shifted |= (valA<<16);
+      if( valA == 1 ) shifted |= 1<<17;  // header
+      if( valA == 3 ) shifted |= 1<<16;  // trailer;
       ram1.push_back(shifted);
     }
   } 

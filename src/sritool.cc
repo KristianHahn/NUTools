@@ -1,3 +1,4 @@
+
 #include "uhal/uhal.hpp"
 #include "uhal/log/log.hpp"
 #include <vector>
@@ -52,11 +53,23 @@ int main(int argc, char ** argv) {
     hw.getNode("slink.channel_0.cdfifo.csr.ctrl").write(0x0);
     hw.dispatch();
 
-    uint32_t ctrlwrd = 0x80000000;
+    // dec12
+    ValWord<uint32_t> ctrlwrd  = hw.getNode("payload.csr.ctrl").read();
+    hw.dispatch();
+    uint32_t ctrlwrd_u =  ctrlwrd.value() | 0x80000000; // ena
+    if( dev.pause > 0)
+      ctrlwrd_u |= dev.pause;
+    else ctrlwrd_u |= 0xff;
+    hw.getNode("payload.csr.ctrl").write(ctrlwrd_u);
+
+    /*
+    uint32_t = 0x80000000;
     if( dev.pause > 0)
       ctrlwrd |= dev.pause;
     else ctrlwrd |= 0x3ff;
     hw.getNode("payload.csr.ctrl").write(ctrlwrd);
+    */
+
     hw.dispatch();
     sleep(1);
 
@@ -153,7 +166,9 @@ int main(int argc, char ** argv) {
     //  if(dev.set) {
     printf("writing ...\n"); 
     int nwords = load_bypass_data( hw,dev.filename.c_str(),dev.channel);
-    hw.getNode("slink.csr.ctrl0.bypass_ram_nwords").write(nwords);
+    //    hw.getNode("slink.csr.ctrl0.bypass_ram_nwords").write(nwords);
+    hw.getNode("slink.csr.ctrl.bypass_ram_nentries").write(nwords);
+    printf("nentriest set to %d ...\n", nwords); 
     hw.dispatch();
     sleep(1);
   }
@@ -170,7 +185,7 @@ int main(int argc, char ** argv) {
 
     // send the ram data
     unsigned ctrlwrd = 1;
-    hw.getNode("slink.csr.ctrl0.use_bypass_ram").write(ctrlwrd);
+    hw.getNode("slink.csr.ctrl.use_bypass_ram").write(ctrlwrd);
     hw.dispatch();
 
     sleep(1);
