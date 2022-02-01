@@ -45,23 +45,28 @@ int main(int argc, char ** argv) {
   // payload generation with pause, working
   if(dev.mode == SRI_MODE_PAYLOAD) { 
     // turn off bypass ram
-    hw.getNode("slink.csr.ctrl0.use_bypass_ram").write(0x0);
+    //    hw.getNode("slink.csr.ctrl0.use_bypass_ram").write(0x0);
+    hw.getNode("slink.csr.ctrl.use_bypass_ram").write(0x0);
     hw.dispatch();
     sleep(1);
     // turn off cdfifo ram
-    hw.getNode("slink.channel_1.cdfifo.csr.ctrl").write(0x0);
-    hw.getNode("slink.channel_0.cdfifo.csr.ctrl").write(0x0);
+    //hw.getNode("slink.channel_1.cdfifo.csr.ctrl").write(0x0);
+    //hw.getNode("slink.channel_0.cdfifo.csr.ctrl").write(0x0);
     hw.dispatch();
 
     // dec12
     ValWord<uint32_t> ctrlwrd  = hw.getNode("payload.csr.ctrl").read();
     hw.dispatch();
+    /*
     uint32_t ctrlwrd_u =  ctrlwrd.value() | 0x80000000; // ena
     if( dev.pause > 0)
       ctrlwrd_u |= dev.pause;
     else ctrlwrd_u |= 0xff;
     hw.getNode("payload.csr.ctrl").write(ctrlwrd_u);
-
+    */
+    // jan26
+    hw.getNode("payload.csr.ctrl.pause").write(dev.pause);
+    hw.getNode("payload.csr.ctrl.en").write(0x1);
     /*
     uint32_t = 0x80000000;
     if( dev.pause > 0)
