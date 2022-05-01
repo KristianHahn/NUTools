@@ -13,6 +13,10 @@ LD_FLAGS=$(foreach d, $(LIB_DIRS), -L$d) $(foreach f, $(LIBS), -l$f)
 
 all : reg ram mgt ttc sri
 
+qrf : qrf.exe
+qrf.exe : obj/regargs.o 
+
+
 mgt : mgttool.exe
 mgttool.exe : obj/mgtargs.o obj/mgtroutines.o
 
